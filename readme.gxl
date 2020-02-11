@@ -1,0 +1,72 @@
+# name: -stb-gxl + no auto
+
+cp /compile/doc/stable-am/config.gxl /compile/source/linux-stable-am/.config
+cd /compile/source/linux-stable-am
+# patches:
+# set mac addr on kernel cmdline - otherwise a random one is generated
+patch -p1 < /compile/doc/stable/misc.av8/gen-stmmac-mac-addr-on-kernel-cmdline-v5.3.patch
+# fix black background when using the mali blob hack
+patch -p1 < /compile/doc/stable/misc.av8/s90-amlogic-s90x-mali-hack.patch
+# reduce cma mem for amlogic
+patch -p1 < /compile/doc/stable/misc.av8/reduce-cma-mem-for-amlogic.patch
+# gxl audio patches
+patch -p1 < /compile/source/LibreELEC.tv/packages/linux/patches/amlogic/amlogic-0101-TEMP-ASoC-meson-add-meson-audio-core-driver.patch
+patch -p1 < /compile/source/LibreELEC.tv/packages/linux/patches/amlogic/amlogic-0102-TEMP-ASoC-meson-add-register-definitions.patch
+patch -p1 < /compile/source/LibreELEC.tv/packages/linux/patches/amlogic/amlogic-0103-TEMP-ASoC-meson-add-initial-aiu-i2s-support.patch
+patch -p1 < /compile/source/LibreELEC.tv/packages/linux/patches/amlogic/amlogic-0104-TEMP-ASoC-meson-add-initial-spdif-support.patch
+patch -p1 < /compile/source/LibreELEC.tv/packages/linux/patches/amlogic/amlogic-0105-TEMP-ARM64-defconfig-enable-audio-support-for-meson-.patch
+patch -p1 < /compile/source/LibreELEC.tv/packages/linux/patches/amlogic/amlogic-0106-TEMP-ARM64-dts-meson-gx-add-audio-controller-nodes.patch
+#patch -p1 < /compile/source/LibreELEC.tv/packages/linux/patches/amlogic/amlogic-0107-TEMP-snd-meson-activate-HDMI-audio-path.patch
+#patch -p1 < /compile/source/LibreELEC.tv/packages/linux/patches/amlogic/amlogic-0108-TEMP-ARM64-dts-meson-gx-add-sound-dai-cells-to-HDMI-.patch
+#patch -p1 < /compile/source/LibreELEC.tv/packages/linux/patches/amlogic/amlogic-0109-TEMP-ARM64-dts-meson-activate-hdmi-audio-HDMI-enable.patch
+#patch -p1 < /compile/source/LibreELEC.tv/packages/linux/patches/amlogic/amlogic-0110-TEMP-drm-dw-hdmi-call-hdmi_set_cts_n-after-clock-is-.patch
+#patch -p1 < /compile/source/LibreELEC.tv/packages/linux/patches/amlogic/amlogic-0111-TEMP-fix-chmap_idx.patch
+#patch -p1 < /compile/source/LibreELEC.tv/packages/linux/patches/amlogic/amlogic-0112-TEMP-ASoC-hdmi-codec-reorder-channel-allocation-list.patch
+
+# git pull
+export ARCH=arm64
+# make defconfig + fix options - see misc.gxl/options
+make oldconfig
+make -j 4 Image dtbs modules
+export kver=`make kernelrelease`
+echo ${kver}
+# remove debug info if there and wanted
+# find . -type f -name '*.ko' | sudo xargs -n 1 objcopy --strip-unneeded
+make modules_install
+# make headers_install INSTALL_HDR_PATH=/usr
+cp -v .config /boot/config-${kver}
+# for rpi
+cp -v arch/arm64/boot/Image /boot/Image-${kver}
+# in case it is needed somewhere
+mkimage -A arm64 -O linux -T kernel -C none -a 0x1080000 -e 0x1080000 -n linux-${kver} -d arch/arm64/boot/Image /boot/uImage-${kver}
+mkdir /boot/dtb-${kver}
+cp -v arch/arm64/boot/dts/amlogic/meson-gxl-*.dtb /boot/dtb-${kver}/
+cp -v System.map /boot/System.map-${kver}
+cd /boot
+update-initramfs -c -k ${kver}
+mkimage -A arm64 -O linux -T ramdisk -a 0x0 -e 0x0 -n initrd.img-${kver} -d initrd.img-${kver} uInitrd-${kver}
+tar cvzf /compile/source/linux-stable-am/${kver}.tar.gz /boot/*-${kver} /lib/modules/${kver}
+cp -v /compile/doc/stable-am/config.gxl /compile/doc/stable-am/config.gxl.old
+cp -v /compile/source/linux-stable-am/.config /compile/doc/stable-am/config.gxl
+cp -v /compile/source/linux-stable-am/.config /compile/doc/stable-am/config.gxl-${kver}
+cp -v /compile/source/linux-stable-am/*.tar.gz /compile/result/stable-am
+cd /compile/source/linux-stable-am
+make distclean
+rm ${kver}.tar.gz
+
+# s905w tv box
+cat /boot/s905_autoscript.txt-5.0.1-stb-gxl+
+setenv kver 5.0.1-stb-gxl+
+# hardcode the eth mac addr in uboot as otherwise we will get a new one each time
+setenv ethaddr 2e:19:c4:a0:b0:6d
+setenv mac 2e:19:c4:a0:b0:6d
+setenv bootargs "console=ttyAML0,115200n8 console=tty0 no_console_suspend consoleblank=0 root=/dev/sda3 rootwait ro fsck.fix=yes fsck.repair=yes net.ifnames=0 ipv6.disable=1 zswap.enabled=0 threadirqs noresume"
+#fatload usb 0 0x11000000 Image-${kver}
+fatload usb 0 0x01080000 uImage-${kver}
+fatload usb 0 0x13000000 uInitrd-${kver}
+fatload usb 0 ${dtb_mem_addr} dtb-${kver}/meson-gxl-s905w-p281.dtb
+# booti only works out of the box with blb kernels due some patches - otherwise mkimage is required
+#booti 0x11000000 0x13000000 ${dtb_mem_addr}
+# as describe at linux-meson.com
+bootm 0x1080000 0x13000000 $dtb_mem_addr
+# use: mkimage -A arm64 -T script -O linux -d s905_autoscript.txt s905_autoscript.scr
