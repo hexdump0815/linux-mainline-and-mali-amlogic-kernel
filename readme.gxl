@@ -50,9 +50,6 @@ cp -v /compile/doc/stable-am/config.gxl /compile/doc/stable-am/config.gxl.old
 cp -v /compile/source/linux-stable-am/.config /compile/doc/stable-am/config.gxl
 cp -v /compile/source/linux-stable-am/.config /compile/doc/stable-am/config.gxl-${kver}
 cp -v /compile/source/linux-stable-am/*.tar.gz /compile/result/stable-am
-cd /compile/source/linux-stable-am
-make distclean
-rm ${kver}.tar.gz
 
 # s905w tv box
 cat /boot/s905_autoscript.txt-5.0.1-stb-gxl+
