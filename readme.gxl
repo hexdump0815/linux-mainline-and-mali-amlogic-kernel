@@ -6,16 +6,18 @@ cd /compile/source/linux-stable-am
 # set mac addr on kernel cmdline - otherwise a random one is generated
 patch -p1 < /compile/doc/stable/misc.av8/gen-stmmac-mac-addr-on-kernel-cmdline-v5.3.patch
 # fix black background when using the mali blob hack
-patch -p1 < /compile/doc/stable/misc.av8/s90-amlogic-s90x-mali-hack.patch
+# seems to be no longer required with v5.6
+#patch -p1 < /compile/doc/stable/misc.av8/s90-amlogic-s90x-mali-hack.patch
 # reduce cma mem for amlogic
 patch -p1 < /compile/doc/stable/misc.av8/reduce-cma-mem-for-amlogic.patch
 # gxl audio patches
-patch -p1 < /compile/source/LibreELEC.tv/packages/linux/patches/amlogic/amlogic-0101-TEMP-ASoC-meson-add-meson-audio-core-driver.patch
-patch -p1 < /compile/source/LibreELEC.tv/packages/linux/patches/amlogic/amlogic-0102-TEMP-ASoC-meson-add-register-definitions.patch
-patch -p1 < /compile/source/LibreELEC.tv/packages/linux/patches/amlogic/amlogic-0103-TEMP-ASoC-meson-add-initial-aiu-i2s-support.patch
-patch -p1 < /compile/source/LibreELEC.tv/packages/linux/patches/amlogic/amlogic-0104-TEMP-ASoC-meson-add-initial-spdif-support.patch
-patch -p1 < /compile/source/LibreELEC.tv/packages/linux/patches/amlogic/amlogic-0105-TEMP-ARM64-defconfig-enable-audio-support-for-meson-.patch
-patch -p1 < /compile/source/LibreELEC.tv/packages/linux/patches/amlogic/amlogic-0106-TEMP-ARM64-dts-meson-gx-add-audio-controller-nodes.patch
+# gxl sound is supposed to come in in v5.7, so forget about it for now
+#patch -p1 < /compile/source/LibreELEC.tv/packages/linux/patches/amlogic/amlogic-0101-TEMP-ASoC-meson-add-meson-audio-core-driver.patch
+#patch -p1 < /compile/source/LibreELEC.tv/packages/linux/patches/amlogic/amlogic-0102-TEMP-ASoC-meson-add-register-definitions.patch
+#patch -p1 < /compile/source/LibreELEC.tv/packages/linux/patches/amlogic/amlogic-0103-TEMP-ASoC-meson-add-initial-aiu-i2s-support.patch
+#patch -p1 < /compile/source/LibreELEC.tv/packages/linux/patches/amlogic/amlogic-0104-TEMP-ASoC-meson-add-initial-spdif-support.patch
+#patch -p1 < /compile/source/LibreELEC.tv/packages/linux/patches/amlogic/amlogic-0105-TEMP-ARM64-defconfig-enable-audio-support-for-meson-.patch
+#patch -p1 < /compile/source/LibreELEC.tv/packages/linux/patches/amlogic/amlogic-0106-TEMP-ARM64-dts-meson-gx-add-audio-controller-nodes.patch
 #patch -p1 < /compile/source/LibreELEC.tv/packages/linux/patches/amlogic/amlogic-0107-TEMP-snd-meson-activate-HDMI-audio-path.patch
 #patch -p1 < /compile/source/LibreELEC.tv/packages/linux/patches/amlogic/amlogic-0108-TEMP-ARM64-dts-meson-gx-add-sound-dai-cells-to-HDMI-.patch
 #patch -p1 < /compile/source/LibreELEC.tv/packages/linux/patches/amlogic/amlogic-0109-TEMP-ARM64-dts-meson-activate-hdmi-audio-HDMI-enable.patch
@@ -40,7 +42,8 @@ cp -v arch/arm64/boot/Image /boot/Image-${kver}
 # in case it is needed somewhere
 mkimage -A arm64 -O linux -T kernel -C none -a 0x1080000 -e 0x1080000 -n linux-${kver} -d arch/arm64/boot/Image /boot/uImage-${kver}
 mkdir /boot/dtb-${kver}
-cp -v arch/arm64/boot/dts/amlogic/meson-gxl-*.dtb /boot/dtb-${kver}/
+cp -v arch/arm64/boot/dts/amlogic/meson-g*.dtb /boot/dtb-${kver}
+cp -v arch/arm64/boot/dts/amlogic/meson-sm1*.dtb /boot/dtb-${kver}
 cp -v System.map /boot/System.map-${kver}
 cd /boot
 update-initramfs -c -k ${kver}
