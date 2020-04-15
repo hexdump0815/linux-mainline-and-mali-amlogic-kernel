@@ -1,6 +1,6 @@
-# name: -stb-gxl + no auto
+# name: -stb-aml + no auto
 
-cp /compile/doc/stable-am/config.gxl /compile/source/linux-stable-am/.config
+cp /compile/doc/stable-am/config.aml /compile/source/linux-stable-am/.config
 cd /compile/source/linux-stable-am
 # patches:
 # set mac addr on kernel cmdline - otherwise a random one is generated
@@ -10,8 +10,14 @@ patch -p1 < /compile/doc/stable/misc.av8/gen-stmmac-mac-addr-on-kernel-cmdline-v
 #patch -p1 < /compile/doc/stable/misc.av8/s90-amlogic-s90x-mali-hack.patch
 # reduce cma mem for amlogic
 patch -p1 < /compile/doc/stable/misc.av8/reduce-cma-mem-for-amlogic.patch
-# gxl audio patches
-# gxl sound is supposed to come in in v5.7, so forget about it for now
+# g12 usb fix
+patch -p1 < /compile/doc/stable-am/misc.aml/amlogic-g12-usb-fix-v5.6.patch
+# add new dtbs to Makefile
+patch -p1 < /compile/doc/stable-am/misc.aml/add-new-g12-dtbs-to-Makefile.patch
+# copy additional dtb files - from: https://github.com/150balbes/Amlogic_s905-kernel/tree/5.6/arch/arm64/boot/dts/amlogic
+cp /compile/doc/stable-am/misc.aml/dtb/*.dts arch/arm64/boot/dts/amlogic
+# aml audio patches
+# aml sound is supposed to come in in v5.7, so forget about it for now
 #patch -p1 < /compile/source/LibreELEC.tv/packages/linux/patches/amlogic/amlogic-0101-TEMP-ASoC-meson-add-meson-audio-core-driver.patch
 #patch -p1 < /compile/source/LibreELEC.tv/packages/linux/patches/amlogic/amlogic-0102-TEMP-ASoC-meson-add-register-definitions.patch
 #patch -p1 < /compile/source/LibreELEC.tv/packages/linux/patches/amlogic/amlogic-0103-TEMP-ASoC-meson-add-initial-aiu-i2s-support.patch
@@ -27,7 +33,7 @@ patch -p1 < /compile/doc/stable/misc.av8/reduce-cma-mem-for-amlogic.patch
 
 # git pull
 export ARCH=arm64
-# make defconfig + fix options - see misc.gxl/options
+# make defconfig + fix options - see misc.aml/options
 make oldconfig
 make -j 4 Image dtbs modules
 export kver=`make kernelrelease`
@@ -49,14 +55,14 @@ cd /boot
 update-initramfs -c -k ${kver}
 mkimage -A arm64 -O linux -T ramdisk -a 0x0 -e 0x0 -n initrd.img-${kver} -d initrd.img-${kver} uInitrd-${kver}
 tar cvzf /compile/source/linux-stable-am/${kver}.tar.gz /boot/*-${kver} /lib/modules/${kver}
-cp -v /compile/doc/stable-am/config.gxl /compile/doc/stable-am/config.gxl.old
-cp -v /compile/source/linux-stable-am/.config /compile/doc/stable-am/config.gxl
-cp -v /compile/source/linux-stable-am/.config /compile/doc/stable-am/config.gxl-${kver}
+cp -v /compile/doc/stable-am/config.aml /compile/doc/stable-am/config.aml.old
+cp -v /compile/source/linux-stable-am/.config /compile/doc/stable-am/config.aml
+cp -v /compile/source/linux-stable-am/.config /compile/doc/stable-am/config.aml-${kver}
 cp -v /compile/source/linux-stable-am/*.tar.gz /compile/result/stable-am
 
 # s905w tv box
-cat /boot/s905_autoscript.txt-5.0.1-stb-gxl+
-setenv kver 5.0.1-stb-gxl+
+cat /boot/s905_autoscript.txt-5.0.1-stb-aml+
+setenv kver 5.0.1-stb-aml+
 # hardcode the eth mac addr in uboot as otherwise we will get a new one each time
 setenv ethaddr 2e:19:c4:a0:b0:6d
 setenv mac 2e:19:c4:a0:b0:6d
@@ -64,7 +70,7 @@ setenv bootargs "console=ttyAML0,115200n8 console=tty0 no_console_suspend consol
 #fatload usb 0 0x11000000 Image-${kver}
 fatload usb 0 0x01080000 uImage-${kver}
 fatload usb 0 0x13000000 uInitrd-${kver}
-fatload usb 0 ${dtb_mem_addr} dtb-${kver}/meson-gxl-s905w-p281.dtb
+fatload usb 0 ${dtb_mem_addr} dtb-${kver}/meson-aml-s905w-p281.dtb
 # booti only works out of the box with blb kernels due some patches - otherwise mkimage is required
 #booti 0x11000000 0x13000000 ${dtb_mem_addr}
 # as describe at linux-meson.com
