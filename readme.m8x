@@ -1,0 +1,61 @@
+#
+# directories:
+# - /compile/doc/stable-am - the files in this dir
+# - /compile/source/linux-stable-am - the kernel sources checked out from gitrepo
+# - /compile/result/stable-am - the resulting kernel, modules etc. tar.gz files
+#
+# patches:
+# set mac addr on kernel cmdline - otherwise a random one is generated
+patch -p1 < /compile/doc/stable-am/misc.m8x/gen-stmmac-mac-addr-on-kernel-cmdline-v5.3.patch
+# v5.1 - add more meson8m2 dtbs
+patch -p1 < /compile/doc/stable-am/misc.m8x/meson8m2-dtb.patch
+cp /compile/doc/stable-am/misc.m8x/dtb/meson8m2*.dts* arch/arm/boot/dts
+
+cp /compile/doc/stable-am/config.m8x /compile/source/linux-stable-am/.config
+cd /compile/source/linux-stable-am
+export ARCH=arm
+# make multi_v7_defconfig + fix options - see misc.m8x/options
+make oldconfig
+make -j 4 zImage dtbs modules
+export kver=`make kernelrelease`
+echo ${kver}
+# remove debug info if there and not wanted
+# find . -type f -name '*.ko' | sudo xargs -n 1 objcopy --strip-unneeded
+make modules_install
+# make headers_install INSTALL_HDR_PATH=/usr
+cp -v .config /boot/config-${kver}
+# for all except amlogic 32bit socs
+cp -v arch/arm/boot/zImage /boot/zImage-${kver}
+# for amlogic 32bit socs (legacy u-boot)
+mkimage -A arm -O linux -T kernel -C none -a 0x00208000 -e 0x00208000 -n linux-${kver} -d arch/arm/boot/zImage /boot/uImage-${kver}
+mkdir -p /boot/dtb-${kver}
+cp -v arch/arm/boot/dts/meson8b-mxq.dtb /boot/dtb-${kver}
+cp -v arch/arm/boot/dts/meson8m2*.dtb /boot/dtb-${kver}
+cp -v System.map /boot/System.map-${kver}
+cd /boot
+update-initramfs -c -k ${kver}
+mkimage -A arm -O linux -T ramdisk -a 0x0 -e 0x0 -n initrd.img-${kver} -d initrd.img-${kver} uInitrd-${kver}
+tar cvzf /compile/source/linux-stable-am/${kver}.tar.gz /boot/*-${kver} /lib/modules/${kver}
+cp -v /compile/doc/stable-am/config.m8x /compile/doc/stable-am/config.m8x.old
+cp -v /compile/source/linux-stable-am/.config /compile/doc/stable-am/config.m8x
+cp -v /compile/source/linux-stable-am/.config /compile/doc/stable-am/config.m8x-${kver}
+cp -v /compile/source/linux-stable-am/*.tar.gz /compile/result/stable-am
+
+
+# s805 tv box mxq - /boot/s805_autoscript.txt:
+setenv kver 5.4.20-stb-m8x+
+setenv bootargs "console=ttyAML0,115200 root=/dev/mmcblk0p3 rootwait ro loglevel=8 fsck.repair=yes net.ifnames=0 ipv6.disable=1 stmmac.macaddr=00:1d:72:64:21:53 noresume"
+# rootfs on usb
+#setenv bootargs "console=ttyAML0,115200 root=/dev/sda3 rootwait ro loglevel=8 fsck.repair=yes net.ifnames=0 ipv6.disable=1 stmmac.macaddr=00:1d:72:64:21:53 noresume"
+# this is to startup the mmc
+mmcinfo
+# kernel etc. on mmc
+fatload mmc 0 0x14000000 uImage-${kver}
+fatload mmc 0 0x15000000 uInitrd-${kver}
+fatload mmc 0 0x11800000 dtb-${kver}/meson8b-mxq.dtb
+# kernel etc. on usb
+#fatload usb 0 0x14000000 uImage-${kver}
+#fatload usb 0 0x15000000 uInitrd-${kver}
+#fatload usb 0 0x11800000 dtb-${kver}/meson8b-mxq.dtb
+bootm 0x14000000 0x15000000 0x11800000
+# use: mkimage -A arm -T script -O linux -d s805_autoscript.txt s805_autoscript
