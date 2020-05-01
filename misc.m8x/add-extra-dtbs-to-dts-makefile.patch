@@ -13,8 +13,8 @@ index d6546d2676b9..58124f4eaff3 100644
 -	meson8m2-mxiii-plus.dtb
 +	meson8m2-mxiii-plus.dtb \
 +	meson8m2-mxiii.dtb \
-+	meson8m2-m8s-dvfs.dtb
-+	meson8m2-m8s.dtb \
++	meson8m2-m8s-dvfs.dtb \
++	meson8m2-m8s.dtb
  dtb-$(CONFIG_ARCH_MMP) += \
  	pxa168-aspenite.dtb \
  	pxa910-dkb.dtb \
