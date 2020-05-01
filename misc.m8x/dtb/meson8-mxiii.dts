@@ -1,0 +1,88 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * Copyright (c) 2018 Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+ */
+
+/dts-v1/;
+
+#include "meson8-mxiii.dtsi"
+
+/ {
+	model = "Tronsmart MXIII";
+	compatible = "tronsmart,mxiii", "amlogic,meson8m2";
+
+//	usb_vbus: regulator-usb-vbus {
+//		/*
+//		 * Silergy SY6288CCAC-GP 2A Power Distribution Switch.
+//		 */
+//		compatible = "regulator-fixed";
+//
+//		regulator-name = "USB_VBUS";
+//
+//		regulator-min-microvolt = <5000000>;
+//		regulator-max-microvolt = <5000000>;
+//
+//		vin-supply = <&vcc_5v>;
+//
+//		/*
+//		 * signal name from the schematics: USB_PWR_EN
+//		 */
+//		gpio = <&gpio GPIOZ_1 0>;
+//		enable-active-high;
+//	};
+//
+//	vcc_5v: regulator-vcc5v {
+//		/*
+//		 * supplied by the main power input which called PWR_5V_STB
+//		 * in the schematics
+//		 */
+//		compatible = "regulator-fixed";
+//
+//		regulator-name = "VCC5V";
+//
+//		regulator-min-microvolt = <5000000>;
+//		regulator-max-microvolt = <5000000>;
+//
+//		/*
+//		 * signal name from the schematics: 3V3_5V_EN
+//		 */
+//		gpio = <&gpio GPIODV_29 GPIO_ACTIVE_LOW>;
+//
+//		regulator-boot-on;
+//		regulator-always-on;
+//	};
+};
+
+&ethmac {
+	status = "okay";
+
+	pinctrl-0 = <&eth_pins>;
+	pinctrl-names = "default";
+
+	phy-handle = <&eth_phy0>;
+	phy-mode = "rmii";
+
+	snps,reset-gpio = <&gpio GPIOZ_14 0>;
+	snps,reset-delays-us = <0 10000 1000000>;
+	snps,reset-active-low;
+
+	mdio {
+		compatible = "snps,dwmac-mdio";
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		eth_phy0: ethernet-phy@0 {
+			/* IC Plus IP101A/G (0x02430c54) */
+			reg = <0>;
+			icplus,select-interrupt;
+			interrupt-parent = <&gpio_intc>;
+			/* GPIODV_29 = 94 and GPIOZ_4 are not working */
+			/* interrupts = <94 IRQ_TYPE_LEVEL_LOW>; */
+		};
+	};
+};
+
+//&usb1 {
+//	status = "okay";
+//	vbus-supply = <&usb_vbus>;
+//};

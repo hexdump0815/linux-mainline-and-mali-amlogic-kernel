@@ -7,9 +7,14 @@
 # patches:
 # set mac addr on kernel cmdline - otherwise a random one is generated
 patch -p1 < /compile/doc/stable-am/misc.m8x/gen-stmmac-mac-addr-on-kernel-cmdline-v5.3.patch
-# v5.1 - add more meson8m2 dtbs
-patch -p1 < /compile/doc/stable-am/misc.m8x/meson8m2-dtb.patch
-cp /compile/doc/stable-am/misc.m8x/dtb/meson8m2*.dts* arch/arm/boot/dts
+# pll locking fix for meson8 - https://freenode.irclog.whitequark.org/linux-amlogic/2020-05-01#26937336
+patch -p1 < /compile/doc/stable-am/misc.m8x/mxiii-pll-lock-fix.patch
+# add pwms for m8s-dvfs - https://freenode.irclog.whitequark.org/linux-amlogic/2020-05-01#26937776
+patch -p1 < /compile/doc/stable-am/misc.m8x/add-extra-pwms-to-meson8.patch
+# add more dtbs - from xdarklight tree and https://freenode.irclog.whitequark.org/linux-amlogic/2020-05-01#26937719
+patch -p1 < /compile/doc/stable-am/misc.m8x/add-extra-dtbs-to-dts-makefile.patch
+cp /compile/doc/stable-am/misc.m8x/dtb/*.dts* arch/arm/boot/dts
+
 
 cp /compile/doc/stable-am/config.m8x /compile/source/linux-stable-am/.config
 cd /compile/source/linux-stable-am
@@ -29,8 +34,7 @@ cp -v arch/arm/boot/zImage /boot/zImage-${kver}
 # for amlogic 32bit socs (legacy u-boot)
 mkimage -A arm -O linux -T kernel -C none -a 0x00208000 -e 0x00208000 -n linux-${kver} -d arch/arm/boot/zImage /boot/uImage-${kver}
 mkdir -p /boot/dtb-${kver}
-cp -v arch/arm/boot/dts/meson8b-mxq.dtb /boot/dtb-${kver}
-cp -v arch/arm/boot/dts/meson8m2*.dtb /boot/dtb-${kver}
+cp -v arch/arm/boot/dts/meson8*.dtb /boot/dtb-${kver}
 cp -v System.map /boot/System.map-${kver}
 cd /boot
 update-initramfs -c -k ${kver}
@@ -43,7 +47,7 @@ cp -v /compile/source/linux-stable-am/*.tar.gz /compile/result/stable-am
 
 
 # s805 tv box mxq - /boot/s805_autoscript.txt:
-setenv kver 5.4.20-stb-m8x+
+setenv kver 5.6.8-stb-m8x+
 setenv bootargs "console=ttyAML0,115200 root=/dev/mmcblk0p3 rootwait ro loglevel=8 fsck.repair=yes net.ifnames=0 ipv6.disable=1 stmmac.macaddr=00:1d:72:64:21:53 noresume"
 # rootfs on usb
 #setenv bootargs "console=ttyAML0,115200 root=/dev/sda3 rootwait ro loglevel=8 fsck.repair=yes net.ifnames=0 ipv6.disable=1 stmmac.macaddr=00:1d:72:64:21:53 noresume"
@@ -52,10 +56,14 @@ mmcinfo
 # kernel etc. on mmc
 fatload mmc 0 0x14000000 uImage-${kver}
 fatload mmc 0 0x15000000 uInitrd-${kver}
+#fatload mmc 0 0x11800000 dtb-${kver}/meson8-mxiii.dtb
 fatload mmc 0 0x11800000 dtb-${kver}/meson8b-mxq.dtb
+#fatload mmc 0 0x11800000 dtb-${kver}/meson8m2-m8s-dvfs.dtb
 # kernel etc. on usb
 #fatload usb 0 0x14000000 uImage-${kver}
 #fatload usb 0 0x15000000 uInitrd-${kver}
+#fatload usb 0 0x11800000 dtb-${kver}/meson8-mxiii.dtb
 #fatload usb 0 0x11800000 dtb-${kver}/meson8b-mxq.dtb
+#fatload usb 0 0x11800000 dtb-${kver}/meson8m2-m8s-dvfs.dtb
 bootm 0x14000000 0x15000000 0x11800000
 # use: mkimage -A arm -T script -O linux -d s805_autoscript.txt s805_autoscript
