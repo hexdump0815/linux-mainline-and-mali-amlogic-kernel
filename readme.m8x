@@ -21,7 +21,7 @@ cd /compile/source/linux-stable-am
 export ARCH=arm
 # make multi_v7_defconfig + fix options - see misc.m8x/options
 make oldconfig
-make -j 4 zImage dtbs modules
+make -j 4 LOADADDR=0x00208000 zImage dtbs modules
 export kver=`make kernelrelease`
 echo ${kver}
 # remove debug info if there and not wanted
