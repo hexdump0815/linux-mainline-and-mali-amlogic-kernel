@@ -86,8 +86,8 @@
 		compatible = "pwm-regulator";
 
 		regulator-name = "VCCK";
-		regulator-min-microvolt = <860000>;
-		regulator-max-microvolt = <1140000>;
+		regulator-min-microvolt = <825000>;
+		regulator-max-microvolt = <1100000>;
 
 		pwms = <&pwm_cd 0 1148 0>;
 		pwm-dutycycle-range = <100 0>;

@@ -1,0 +1,32 @@
+diff --git a/drivers/phy/amlogic/Kconfig b/drivers/phy/amlogic/Kconfig
+index af774ac2b934..92e8b2014e9b 100644
+--- a/drivers/phy/amlogic/Kconfig
++++ b/drivers/phy/amlogic/Kconfig
+@@ -3,7 +3,7 @@
+ # Phy drivers for Amlogic platforms
+ #
+ config PHY_MESON8B_USB2
+-	tristate "Meson8, Meson8b and GXBB USB2 PHY driver"
++	tristate "Meson8, Meson8b, Meson8m2 and GXBB USB2 PHY driver"
+ 	default ARCH_MESON
+ 	depends on OF && (ARCH_MESON || COMPILE_TEST)
+ 	depends on USB_SUPPORT
+diff --git a/drivers/phy/amlogic/phy-meson8b-usb2.c b/drivers/phy/amlogic/phy-meson8b-usb2.c
+index bd66bd723e4a..e0d552b85432 100644
+--- a/drivers/phy/amlogic/phy-meson8b-usb2.c
++++ b/drivers/phy/amlogic/phy-meson8b-usb2.c
+@@ -262,6 +262,7 @@ static int phy_meson8b_usb2_probe(struct platform_device *pdev)
+ static const struct of_device_id phy_meson8b_usb2_of_match[] = {
+ 	{ .compatible = "amlogic,meson8-usb2-phy", },
+ 	{ .compatible = "amlogic,meson8b-usb2-phy", },
++	{ .compatible = "amlogic,meson8m2-usb2-phy", },
+ 	{ .compatible = "amlogic,meson-gxbb-usb2-phy", },
+ 	{ },
+ };
+@@ -277,5 +278,5 @@ static struct platform_driver phy_meson8b_usb2_driver = {
+ module_platform_driver(phy_meson8b_usb2_driver);
+ 
+ MODULE_AUTHOR("Martin Blumenstingl <martin.blumenstingl@googlemail.com>");
+-MODULE_DESCRIPTION("Meson8, Meson8b and GXBB USB2 PHY driver");
++MODULE_DESCRIPTION("Meson8, Meson8b, Meson8m2 and GXBB USB2 PHY driver");
+ MODULE_LICENSE("GPL");
