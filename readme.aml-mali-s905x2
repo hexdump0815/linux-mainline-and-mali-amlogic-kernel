@@ -9,7 +9,7 @@ KERNEL=="mali0", MODE="0660", GROUP="video"
 - xorg.conf
 01-armsoc.conf
 
-# mali kernel module - bitfrost
+# mali kernel module - bifrost
 git clone https://github.com/superna9999/meson_g12a_mali_bifrost.git
 mv meson_g12a_mali_bifrost amlogic-meson_g12a_mali_bifrost
 cd /compile/source/amlogic-meson_g12a_mali_bifrost
