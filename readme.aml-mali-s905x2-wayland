@@ -1,3 +1,12 @@
+# all below is based on ubuntu 18.04 and might differ for other dists
+# other things required:
+- user in video group
+usermod -a -G video <username>
+- mali udev rules
+root@odroid:~# cat /etc/udev/rules.d/50-mali.rules
+KERNEL=="mali", MODE="0660", GROUP="video"
+KERNEL=="mali0", MODE="0660", GROUP="video"
+
 # mali kernel module for wayland use (i.e. newer version) - bifrost
 # sources from odroid mali-bifrost-dkms (/usr/src/mali-bifrost-24.0+202005011205~focal)
 # package from odroid c4 image: https://www.youtube.com/watch?v=4MfHMKcHaUc
@@ -10,3 +19,23 @@ cp drivers/gpu/arm/midgard/mali_kbase.ko /lib/modules/${kver}/extra
 tar czf /compile/result/stable-am/${kver}-mali-s905x2-wayland.tar.gz /lib/modules/${kver}/extra/mali_kbase.ko
 # clean up the extra dir for possible further pure kernel packaging
 rm -rf /lib/modules/${kver}/extra
+
+xorg.conf:
+Section "Device"
+    Identifier  "Framebuffer"
+    Driver      "fbdev"
+    Option      "fbdev" "/dev/fb0"
+EndSection
+
+the following libs should point to libmali.so:
+libEGL.so.1.1.0
+libGLESv1_CM.so.1.2.0
+libGLESv2.so.2.1.0
+libwayland-egl.so.1.0.0
+
+permissions required for user (usually via video group):
+/dev/mali0
+/dev/dri/*
+/dev/fb0
+
+interesting for app usage: https://www.youtube.com/watch?v=4MfHMKcHaUc
