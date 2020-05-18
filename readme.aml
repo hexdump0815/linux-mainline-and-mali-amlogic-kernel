@@ -15,23 +15,9 @@ patch -p1 < /compile/doc/stable-am/misc.aml/amlogic-g12-usb-fix-v5.6.patch
 # add some extra but disabled opp entries for g12a, g12b and sm1
 patch -p1 < /compile/doc/stable-am/misc.aml/additional-disabled-opp-entires.patch
 # add new dtbs to Makefile
-patch -p1 < /compile/doc/stable-am/misc.aml/add-new-g12-dtbs-to-Makefile.patch
+patch -p1 < /compile/doc/stable-am/misc.aml/add-new-dtbs-to-Makefile.patch
 # copy additional dtb files - from: https://github.com/150balbes/Amlogic_s905-kernel/tree/5.6/arch/arm64/boot/dts/amlogic
 cp /compile/doc/stable-am/misc.aml/dtb/*.dts arch/arm64/boot/dts/amlogic
-# aml audio patches
-# aml sound is supposed to come in in v5.7, so forget about it for now
-#patch -p1 < /compile/source/LibreELEC.tv/packages/linux/patches/amlogic/amlogic-0101-TEMP-ASoC-meson-add-meson-audio-core-driver.patch
-#patch -p1 < /compile/source/LibreELEC.tv/packages/linux/patches/amlogic/amlogic-0102-TEMP-ASoC-meson-add-register-definitions.patch
-#patch -p1 < /compile/source/LibreELEC.tv/packages/linux/patches/amlogic/amlogic-0103-TEMP-ASoC-meson-add-initial-aiu-i2s-support.patch
-#patch -p1 < /compile/source/LibreELEC.tv/packages/linux/patches/amlogic/amlogic-0104-TEMP-ASoC-meson-add-initial-spdif-support.patch
-#patch -p1 < /compile/source/LibreELEC.tv/packages/linux/patches/amlogic/amlogic-0105-TEMP-ARM64-defconfig-enable-audio-support-for-meson-.patch
-#patch -p1 < /compile/source/LibreELEC.tv/packages/linux/patches/amlogic/amlogic-0106-TEMP-ARM64-dts-meson-gx-add-audio-controller-nodes.patch
-#patch -p1 < /compile/source/LibreELEC.tv/packages/linux/patches/amlogic/amlogic-0107-TEMP-snd-meson-activate-HDMI-audio-path.patch
-#patch -p1 < /compile/source/LibreELEC.tv/packages/linux/patches/amlogic/amlogic-0108-TEMP-ARM64-dts-meson-gx-add-sound-dai-cells-to-HDMI-.patch
-#patch -p1 < /compile/source/LibreELEC.tv/packages/linux/patches/amlogic/amlogic-0109-TEMP-ARM64-dts-meson-activate-hdmi-audio-HDMI-enable.patch
-#patch -p1 < /compile/source/LibreELEC.tv/packages/linux/patches/amlogic/amlogic-0110-TEMP-drm-dw-hdmi-call-hdmi_set_cts_n-after-clock-is-.patch
-#patch -p1 < /compile/source/LibreELEC.tv/packages/linux/patches/amlogic/amlogic-0111-TEMP-fix-chmap_idx.patch
-#patch -p1 < /compile/source/LibreELEC.tv/packages/linux/patches/amlogic/amlogic-0112-TEMP-ASoC-hdmi-codec-reorder-channel-allocation-list.patch
 
 # git pull
 export ARCH=arm64
@@ -63,8 +49,8 @@ cp -v /compile/source/linux-stable-am/.config /compile/doc/stable-am/config.aml-
 cp -v /compile/source/linux-stable-am/*.tar.gz /compile/result/stable-am
 
 # s905w tv box
-cat /boot/s905_autoscript.txt-5.0.1-stb-aml+
-setenv kver 5.0.1-stb-aml+
+cat /boot/s905_autoscript.txt-5.6.13-stb-aml+
+setenv kver 5.6.13-stb-aml+
 # hardcode the eth mac addr in uboot as otherwise we will get a new one each time
 setenv ethaddr 2e:19:c4:a0:b0:6d
 setenv mac 2e:19:c4:a0:b0:6d
