@@ -48,6 +48,12 @@ cp -v /compile/source/linux-stable-am/.config /compile/doc/stable-am/config.aml
 cp -v /compile/source/linux-stable-am/.config /compile/doc/stable-am/config.aml-${kver}
 cp -v /compile/source/linux-stable-am/*.tar.gz /compile/result/stable-am
 
+# well working dtbs:
+- s905 tv boxes: meson-gxbb-nexbox-a95x.dts
+- s905x tv boxes: meson-gxl-s905x-p212.dts or meson-gxl-s905x-nexbox-a95x.dts
+- s905w tv boxes: meson-gxl-s905w-p281.dts
+- s912 tv boxes: meson-gxm-q201.dts (m8spro) or meson-gxm-vega-s96.dts (x92)
+
 # s905w tv box
 cat /boot/s905_autoscript.txt-5.6.13-stb-aml+
 setenv kver 5.6.13-stb-aml+
