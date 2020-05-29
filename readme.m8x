@@ -51,24 +51,47 @@ cp -v /compile/source/linux-stable-am/.config /compile/doc/stable-am/config.m8x-
 cp -v /compile/source/linux-stable-am/*.tar.gz /compile/result/stable-am
 
 
-# s805 tv box mxq - /boot/s805_autoscript.txt:
-setenv kver 5.6.8-stb-m8x+
+# s805 tv box mxq - /boot/s805_autoscript.txt-5.6.15-stb-m8x+-usb:
+setenv kver 5.6.15-stb-m8x+
+# legacy u-boot seems to be able to only handle filenames up to 23 chars, so short some names
+setenv kver-short 5.6.15-s-m+
 setenv bootargs "console=ttyAML0,115200 root=/dev/mmcblk0p3 rootwait ro loglevel=8 fsck.repair=yes net.ifnames=0 ipv6.disable=1 stmmac.macaddr=00:1d:72:64:21:53 noresume"
-# rootfs on usb
-#setenv bootargs "console=ttyAML0,115200 root=/dev/sda3 rootwait ro loglevel=8 fsck.repair=yes net.ifnames=0 ipv6.disable=1 stmmac.macaddr=00:1d:72:64:21:53 noresume"
+# kernel etc. on mmc
 # this is to startup the mmc
 mmcinfo
-# kernel etc. on mmc
-fatload mmc 0 0x14000000 uImage-${kver}
-fatload mmc 0 0x15000000 uInitrd-${kver}
+fatload mmc 0 0x14000000 uImage-${kver-short}
+fatload mmc 0 0x15000000 uInitrd-${kver-short}
 #fatload mmc 0 0x11800000 dtb-${kver}/meson8-mxiii.dtb
 fatload mmc 0 0x11800000 dtb-${kver}/meson8b-mxq.dtb
-#fatload mmc 0 0x11800000 dtb-${kver}/meson8m2-m8s-dvfs.dtb
 # kernel etc. on usb
-#fatload usb 0 0x14000000 uImage-${kver}
-#fatload usb 0 0x15000000 uInitrd-${kver}
+# this is to startup the usb
+#usb start
+#fatload usb 0 0x14000000 uImage-${kver-short}
+#fatload usb 0 0x15000000 uInitrd-${kver-short}
 #fatload usb 0 0x11800000 dtb-${kver}/meson8-mxiii.dtb
 #fatload usb 0 0x11800000 dtb-${kver}/meson8b-mxq.dtb
-#fatload usb 0 0x11800000 dtb-${kver}/meson8m2-m8s-dvfs.dtb
+bootm 0x14000000 0x15000000 0x11800000
+# use: mkimage -A arm -T script -O linux -d s805_autoscript.txt s805_autoscript
+
+
+# mxiii meson8 tv box - /boot/s805_autoscript.txt-5.6.15-stb-m8x+-usb:
+setenv kver 5.6.15-stb-m8x+
+# legacy u-boot seems to be able to only handle filenames up to 23 chars, so short some names
+setenv kver-short 5.6.15-s-m+
+setenv bootargs "console=ttyAML0,115200 root=/dev/sda3 rootwait ro loglevel=8 fsck.repair=yes net.ifnames=0 ipv6.disable=1 stmmac.macaddr=5a:8d:d0:98:96:26 noresume"
+# kernel etc. on mmc
+# this is to startup the mmc
+mmcinfo
+#fatload mmc 0 0x14000000 uImage-${kver-short}
+#fatload mmc 0 0x15000000 uInitrd-${kver-short}
+#fatload mmc 0 0x11800000 dtb-${kver}/meson8-mxiii.dtb
+#fatload mmc 0 0x11800000 dtb-${kver}/meson8b-mxq.dtb
+# kernel etc. on usb
+# this is to startup the usb
+usb start
+fatload usb 0 0x14000000 uImage-${kver-short}
+fatload usb 0 0x15000000 uInitrd-${kver-short}
+fatload usb 0 0x11800000 dtb-${kver}/meson8-mxiii.dtb
+#fatload usb 0 0x11800000 dtb-${kver}/meson8b-mxq.dtb
 bootm 0x14000000 0x15000000 0x11800000
 # use: mkimage -A arm -T script -O linux -d s805_autoscript.txt s805_autoscript
