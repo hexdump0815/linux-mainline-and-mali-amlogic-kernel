@@ -1,0 +1,339 @@
+diff --git a/Documentation/devicetree/bindings/clock/amlogic,meson8b-clkc.txt b/Documentation/devicetree/bindings/clock/amlogic,meson8b-clkc.txt
+index cc51e4746b3b..a2602b5d5378 100644
+--- a/Documentation/devicetree/bindings/clock/amlogic,meson8b-clkc.txt
++++ b/Documentation/devicetree/bindings/clock/amlogic,meson8b-clkc.txt
+@@ -16,6 +16,8 @@ Required Properties:
+   * "xtal": the 24MHz system oscillator
+   * "ddr_pll": the DDR PLL clock
+   * "clk_32k": (if present) the 32kHz clock signal from GPIOAO_6 (CLK_32K_IN)
++  * "rmii_clk": (if present) the 50MHz RMII reference clock (from the PHY or
++                an external oscillator
+ 
+ Parent node should have the following properties :
+ - compatible: "amlogic,meson-hhi-sysctrl", "simple-mfd", "syscon"
+diff --git a/Documentation/devicetree/bindings/net/amlogic,meson-dwmac.yaml b/Documentation/devicetree/bindings/net/amlogic,meson-dwmac.yaml
+index ae91aa9d8616..09279a96f2ea 100644
+--- a/Documentation/devicetree/bindings/net/amlogic,meson-dwmac.yaml
++++ b/Documentation/devicetree/bindings/net/amlogic,meson-dwmac.yaml
+@@ -67,6 +67,28 @@ allOf:
+             PHY and MAC are adding a delay).
+             Any configuration is ignored when the phy-mode is set to "rmii".
+ 
++  - if:
++      properties:
++        compatible:
++          contains:
++            enum:
++              - amlogic,meson6-dwmac
++    then:
++      properties:
++        clocks:
++          minItems: 1
++          maxItems: 2
++          items:
++            - description: GMAC main clock
++            - description: The RMII reference clock
++
++        clock-names:
++          minItems: 1
++          maxItems: 2
++          items:
++            - const: stmmaceth
++            - const: ethernet
++
+ properties:
+   compatible:
+     additionalItems: true
+diff --git a/arch/arm/boot/dts/meson8.dtsi b/arch/arm/boot/dts/meson8.dtsi
+index eedb92526968..77588ff8514b 100644
+--- a/arch/arm/boot/dts/meson8.dtsi
++++ b/arch/arm/boot/dts/meson8.dtsi
+@@ -452,8 +468,8 @@
+ };
+ 
+ &ethmac {
+-	clocks = <&clkc CLKID_ETH>;
+-	clock-names = "stmmaceth";
++	clocks = <&clkc CLKID_ETH>, <&clkc CLKID_ETH_CLK>;
++	clock-names = "stmmaceth", "ethernet";
+ };
+ 
+ &gpio_intc {
+diff --git a/drivers/clk/meson/Kconfig b/drivers/clk/meson/Kconfig
+index dabeb435d067..6eb355e59ce8 100644
+--- a/drivers/clk/meson/Kconfig
++++ b/drivers/clk/meson/Kconfig
+@@ -45,6 +45,7 @@ config COMMON_CLK_MESON8B
+ 	depends on ARCH_MESON
+ 	select COMMON_CLK_MESON_REGMAP
+ 	select COMMON_CLK_MESON_MPLL
++	select COMMON_CLK_MESON_PHASE
+ 	select COMMON_CLK_MESON_PLL
+ 	select MFD_SYSCON
+ 	select RESET_CONTROLLER
+diff --git a/drivers/clk/meson/meson8b.c b/drivers/clk/meson/meson8b.c
+index 9fd31f23b2a9..21a68d8d2e53 100644
+--- a/drivers/clk/meson/meson8b.c
++++ b/drivers/clk/meson/meson8b.c
+@@ -18,6 +18,7 @@
+ 
+ #include "meson8b.h"
+ #include "clk-regmap.h"
++#include "clk-phase.h"
+ #include "clk-pll.h"
+ #include "clk-mpll.h"
+ 
+@@ -1923,6 +1924,13 @@ static const struct pll_params_table meson8m2_gp_pll_params_table[] = {
+ 	{ /* sentinel */ },
+ };
+ 
++static const struct reg_sequence meson8m2_gp_pll_init_regs[] = {
++	{ .reg = HHI_GP_PLL_CNTL2,	.def = 0x59c88000 },
++	{ .reg = HHI_GP_PLL_CNTL3,	.def = 0xca463823 },
++	{ .reg = HHI_GP_PLL_CNTL4,	.def = 0x0286a027 },
++	{ .reg = HHI_GP_PLL_CNTL5,	.def = 0x00003000 },
++};
++
+ static struct clk_regmap meson8m2_gp_pll_dco = {
+ 	.data = &(struct meson_clk_pll_data){
+ 		.en = {
+@@ -1951,6 +1959,8 @@ static struct clk_regmap meson8m2_gp_pll_dco = {
+ 			.width   = 1,
+ 		},
+ 		.table = meson8m2_gp_pll_params_table,
++		.init_regs = meson8m2_gp_pll_init_regs,
++		.init_count = ARRAY_SIZE(meson8m2_gp_pll_init_regs),
+ 	},
+ 	.hw.init = &(struct clk_init_data){
+ 		.name = "gp_pll_dco",
+@@ -2577,6 +2587,78 @@ static struct clk_regmap meson8b_cts_i958 = {
+ 	},
+ };
+ 
++static u32 meson8_eth_clk_mux_table[] = { 7 };
++
++static struct clk_regmap meson8_eth_clk_sel = {
++	.data = &(struct clk_regmap_mux_data) {
++		.offset = HHI_ETH_CLK_CNTL,
++		.mask = 0x7,
++		.shift = 9,
++		.table = meson8_eth_clk_mux_table,
++	},
++	.hw.init = &(struct clk_init_data) {
++		.name = "eth_clk_sel",
++		.ops = &clk_regmap_mux_ops,
++		.parent_data = &(const struct clk_parent_data) {
++			/* TODO: all other parents are unknown */
++			.fw_name = "rmii_clk",
++		},
++		.num_parents = 1,
++	},
++};
++
++static struct clk_regmap meson8_eth_clk_div = {
++	.data = &(struct clk_regmap_div_data) {
++		.offset = HHI_ETH_CLK_CNTL,
++		.shift = 0,
++		.width = 8,
++	},
++	.hw.init = &(struct clk_init_data) {
++		.name = "eth_clk_div",
++		.ops = &clk_regmap_divider_ops,
++		.parent_hws = (const struct clk_hw *[]) {
++			&meson8_eth_clk_sel.hw
++		},
++		.num_parents = 1,
++		.flags = CLK_SET_RATE_PARENT,
++	},
++};
++
++static struct clk_regmap meson8_eth_clk_phase = {
++	.data = &(struct meson_clk_phase_data) {
++		.ph = {
++			.reg_off = HHI_ETH_CLK_CNTL,
++			.shift = 14,
++			.width = 1,
++		},
++	},
++	.hw.init = &(struct clk_init_data){
++		.name = "eth_clk_inverted",
++		.ops = &meson_clk_phase_ops,
++		.parent_hws = (const struct clk_hw *[]) {
++			&meson8_eth_clk_div.hw
++		},
++		.num_parents = 1,
++		.flags = CLK_SET_RATE_PARENT,
++	},
++};
++
++static struct clk_regmap meson8_eth_clk_gate = {
++	.data = &(struct clk_regmap_gate_data) {
++		.offset = HHI_ETH_CLK_CNTL,
++		.bit_idx = 8,
++	},
++	.hw.init = &(struct clk_init_data){
++		.name = "eth_clk_en",
++		.ops = &clk_regmap_gate_ops,
++		.parent_hws = (const struct clk_hw *[]) {
++			&meson8_eth_clk_phase.hw
++		},
++		.num_parents = 1,
++		.flags = CLK_SET_RATE_PARENT,
++	},
++};
++
+ #define MESON_GATE(_name, _reg, _bit) \
+ 	MESON_PCLK(_name, _reg, _bit, &meson8b_clk81.hw)
+ 
+@@ -2866,6 +2948,10 @@ static struct clk_hw_onecell_data meson8_hw_onecell_data = {
+ 		[CLKID_CTS_MCLK_I958_DIV]   = &meson8b_cts_mclk_i958_div.hw,
+ 		[CLKID_CTS_MCLK_I958]	    = &meson8b_cts_mclk_i958.hw,
+ 		[CLKID_CTS_I958]	    = &meson8b_cts_i958.hw,
++		[CLKID_ETH_CLK_SEL]	    = &meson8_eth_clk_sel.hw,
++		[CLKID_ETH_CLK_DIV]	    = &meson8_eth_clk_div.hw,
++		[CLKID_ETH_CLK_PHASE]	    = &meson8_eth_clk_phase.hw,
++		[CLKID_ETH_CLK]		    = &meson8_eth_clk_gate.hw,
+ 		[CLK_NR_CLKS]		    = NULL,
+ 	},
+ 	.num = CLK_NR_CLKS,
+@@ -3496,6 +3582,10 @@ static struct clk_regmap *const meson8b_clk_regmaps[] = {
+ 	&meson8b_cts_mclk_i958_div,
+ 	&meson8b_cts_mclk_i958,
+ 	&meson8b_cts_i958,
++	&meson8_eth_clk_sel,
++	&meson8_eth_clk_div,
++	&meson8_eth_clk_phase,
++	&meson8_eth_clk_gate,
+ };
+ 
+ static const struct meson8b_clk_reset_line {
+diff --git a/drivers/clk/meson/meson8b.h b/drivers/clk/meson/meson8b.h
+index c889fbeec30f..006b6c6527a2 100644
+--- a/drivers/clk/meson/meson8b.h
++++ b/drivers/clk/meson/meson8b.h
+@@ -20,6 +20,10 @@
+  * [0] http://dn.odroid.com/S805/Datasheet/S805_Datasheet%20V0.8%2020150126.pdf
+  */
+ #define HHI_GP_PLL_CNTL			0x40  /* 0x10 offset in data sheet */
++#define HHI_GP_PLL_CNTL2		0x44  /* 0x11 offset in data sheet */
++#define HHI_GP_PLL_CNTL3		0x48  /* 0x12 offset in data sheet */
++#define HHI_GP_PLL_CNTL4		0x4C  /* 0x13 offset in data sheet */
++#define HHI_GP_PLL_CNTL5		0x50  /* 0x14 offset in data sheet */
+ #define HHI_VIID_CLK_DIV		0x128 /* 0x4a offset in data sheet */
+ #define HHI_VIID_CLK_CNTL		0x12c /* 0x4b offset in data sheet */
+ #define HHI_GCLK_MPEG0			0x140 /* 0x50 offset in data sheet */
+@@ -39,6 +43,7 @@
+ #define HHI_MALI_CLK_CNTL		0x1b0 /* 0x6c offset in data sheet */
+ #define HHI_VPU_CLK_CNTL		0x1bc /* 0x6f offset in data sheet */
+ #define HHI_HDMI_CLK_CNTL		0x1cc /* 0x73 offset in data sheet */
++#define HHI_ETH_CLK_CNTL		0x1d8 /* 0x76 offset in data sheet */
+ #define HHI_VDEC_CLK_CNTL		0x1e0 /* 0x78 offset in data sheet */
+ #define HHI_VDEC2_CLK_CNTL		0x1e4 /* 0x79 offset in data sheet */
+ #define HHI_VDEC3_CLK_CNTL		0x1e8 /* 0x7a offset in data sheet */
+@@ -177,8 +182,11 @@
+ #define CLKID_CTS_AMCLK_DIV	208
+ #define CLKID_CTS_MCLK_I958_SEL	210
+ #define CLKID_CTS_MCLK_I958_DIV	211
++#define CLKID_ETH_CLK_SEL	214
++#define CLKID_ETH_CLK_DIV	215
++#define CLKID_ETH_CLK_PHASE	216
+ 
+-#define CLK_NR_CLKS		214
++#define CLK_NR_CLKS		218
+ 
+ /*
+  * include the CLKID and RESETID that have
+diff --git a/drivers/net/ethernet/stmicro/stmmac/dwmac-meson.c b/drivers/net/ethernet/stmicro/stmmac/dwmac-meson.c
+index bbc16b5a410a..3cd42709830b 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/dwmac-meson.c
++++ b/drivers/net/ethernet/stmicro/stmmac/dwmac-meson.c
+@@ -5,6 +5,7 @@
+  * Copyright (C) 2014 Beniamino Galvani <b.galvani@gmail.com>
+  */
+ 
++#include <linux/clk.h>
+ #include <linux/device.h>
+ #include <linux/ethtool.h>
+ #include <linux/io.h>
+@@ -15,11 +16,14 @@
+ 
+ #include "stmmac_platform.h"
+ 
++#define ETHMAC_DIV_EN		BIT(0)
++/* divides the input clock by 20 (= 0x0) or 2 (= 0x1) */
+ #define ETHMAC_SPEED_100	BIT(1)
+ 
+ struct meson_dwmac {
+ 	struct device	*dev;
+ 	void __iomem	*reg;
++	struct clk	*ethernet_clk;
+ };
+ 
+ static void meson6_dwmac_fix_mac_speed(void *priv, unsigned int speed)
+@@ -41,6 +45,33 @@ static void meson6_dwmac_fix_mac_speed(void *priv, unsigned int speed)
+ 	writel(val, dwmac->reg);
+ }
+ 
++static int meson6_dwmac_init(struct platform_device *pdev, void *priv)
++{
++	struct meson_dwmac *dwmac = priv;
++	int ret;
++
++	ret = clk_set_rate(dwmac->ethernet_clk, 50 * 1000 * 1000);
++	if (ret)
++		return ret;
++
++	ret = clk_prepare_enable(dwmac->ethernet_clk);
++	if (ret)
++		return ret;
++
++	writel(readl(dwmac->reg) | ETHMAC_DIV_EN, dwmac->reg);
++
++	return 0;
++}
++
++static void meson6_dwmac_exit(struct platform_device *pdev, void *priv)
++{
++	struct meson_dwmac *dwmac = priv;
++
++	writel(readl(dwmac->reg) & ~ETHMAC_DIV_EN, dwmac->reg);
++
++	clk_disable_unprepare(dwmac->ethernet_clk);
++}
++
+ static int meson6_dwmac_probe(struct platform_device *pdev)
+ {
+ 	struct plat_stmmacenet_data *plat_dat;
+@@ -68,9 +99,21 @@ static int meson6_dwmac_probe(struct platform_device *pdev)
+ 		goto err_remove_config_dt;
+ 	}
+ 
++	dwmac->ethernet_clk = devm_clk_get_optional(&pdev->dev, "ethernet");
++	if (IS_ERR(dwmac->ethernet_clk)) {
++		ret = PTR_ERR(dwmac->ethernet_clk);
++		goto err_remove_config_dt;
++	}
++
+ 	plat_dat->bsp_priv = dwmac;
++	plat_dat->init = meson6_dwmac_init;
++	plat_dat->exit = meson6_dwmac_exit;
+ 	plat_dat->fix_mac_speed = meson6_dwmac_fix_mac_speed;
+ 
++	ret = meson6_dwmac_init(pdev, dwmac);
++	if (ret)
++		return ret;
++
+ 	ret = stmmac_dvr_probe(&pdev->dev, plat_dat, &stmmac_res);
+ 	if (ret)
+ 		goto err_remove_config_dt;
+diff --git a/include/dt-bindings/clock/meson8b-clkc.h b/include/dt-bindings/clock/meson8b-clkc.h
+index 68862aaf977e..eab6ac2c8f85 100644
+--- a/include/dt-bindings/clock/meson8b-clkc.h
++++ b/include/dt-bindings/clock/meson8b-clkc.h
+@@ -115,5 +115,6 @@
+ #define CLKID_CTS_AMCLK		209
+ #define CLKID_CTS_MCLK_I958	212
+ #define CLKID_CTS_I958		213
++#define CLKID_ETH_CLK		217
+ 
+ #endif /* __MESON8B_CLKC_H */
