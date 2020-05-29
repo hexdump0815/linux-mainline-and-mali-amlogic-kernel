@@ -8,7 +8,10 @@
 # set mac addr on kernel cmdline - otherwise a random one is generated
 patch -p1 < /compile/doc/stable-am/misc.m8x/gen-stmmac-mac-addr-on-kernel-cmdline-v5.3.patch
 # pll locking fix for meson8 - https://freenode.irclog.whitequark.org/linux-amlogic/2020-05-01#26937336
-patch -p1 < /compile/doc/stable-am/misc.m8x/mxiii-pll-lock-fix.patch
+# replaced by eth-clk-dev.patch
+#patch -p1 < /compile/doc/stable-am/misc.m8x/mxiii-pll-lock-fix.patch
+# update eth clk code to dev version
+patch -p1 < /compile/doc/stable-am/misc.m8x/eth-clk-dev.patch
 # fix for the usb phy on mxiii - https://freenode.irclog.whitequark.org/linux-amlogic/2020-05-02#26942810
 patch -p1 < /compile/doc/stable-am/misc.m8x/mxiii-usb-phy-fix.patch
 # add pwms for m8s-dvfs - https://freenode.irclog.whitequark.org/linux-amlogic/2020-05-01#26937776
