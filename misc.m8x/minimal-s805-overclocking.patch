@@ -1,8 +1,17 @@
 diff --git a/arch/arm/boot/dts/meson8b-mxq.dts b/arch/arm/boot/dts/meson8b-mxq.dts
-index 33037ef62d0a..9e58b9bf8dd8 100644
+index f3937d55472d..4fc1565ac87a 100644
 --- a/arch/arm/boot/dts/meson8b-mxq.dts
 +++ b/arch/arm/boot/dts/meson8b-mxq.dts
-@@ -98,6 +98,13 @@
+@@ -32,7 +32,7 @@
+ 
+ 		regulator-name = "VCCK";
+ 		regulator-min-microvolt = <860000>;
+-		regulator-max-microvolt = <1140000>;
++		regulator-max-microvolt = <1160000>;
+ 
+ 		pwms = <&pwm_cd 0 1148 0>;
+ 		pwm-dutycycle-range = <100 0>;
+@@ -93,6 +93,13 @@
  	cpu-supply = <&vcck>;
  };
  
@@ -17,10 +26,10 @@ index 33037ef62d0a..9e58b9bf8dd8 100644
  	status = "okay";
  
 diff --git a/arch/arm/boot/dts/meson8b.dtsi b/arch/arm/boot/dts/meson8b.dtsi
-index e34b039b9357..598f40c29c70 100644
+index 01cd5a885e5e..bc5f5cabf855 100644
 --- a/arch/arm/boot/dts/meson8b.dtsi
 +++ b/arch/arm/boot/dts/meson8b.dtsi
-@@ -117,6 +117,15 @@
+@@ -123,6 +123,15 @@
  			opp-hz = /bits/ 64 <1536000000>;
  			opp-microvolt = <1140000>;
  		};
@@ -30,7 +39,7 @@ index e34b039b9357..598f40c29c70 100644
 +// and: https://nixdev.com/?p=397
 +		opp-1632000000 {
 +			opp-hz = /bits/ 64 <1632000000>;
-+			opp-microvolt = <1140000>;
++			opp-microvolt = <1160000>;
 +			status = "disabled";
 +		};
  	};
