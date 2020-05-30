@@ -1,0 +1,38 @@
+diff --git a/arch/arm/boot/dts/meson8b-mxq.dts b/arch/arm/boot/dts/meson8b-mxq.dts
+index 33037ef62d0a..9e58b9bf8dd8 100644
+--- a/arch/arm/boot/dts/meson8b-mxq.dts
++++ b/arch/arm/boot/dts/meson8b-mxq.dts
+@@ -98,6 +98,13 @@
+ 	cpu-supply = <&vcck>;
+ };
+ 
++// minimal s805 overclocking
++&cpu_opp_table {
++	opp-1632000000 {
++		status = "okay";
++	};
++};
++
+ &ethmac {
+ 	status = "okay";
+ 
+diff --git a/arch/arm/boot/dts/meson8b.dtsi b/arch/arm/boot/dts/meson8b.dtsi
+index e34b039b9357..598f40c29c70 100644
+--- a/arch/arm/boot/dts/meson8b.dtsi
++++ b/arch/arm/boot/dts/meson8b.dtsi
+@@ -117,6 +117,15 @@
+ 			opp-hz = /bits/ 64 <1536000000>;
+ 			opp-microvolt = <1140000>;
+ 		};
++// minimal s805 overclocking - higher frequencies than
++// this do not result in higher frequencies in reality
++// see: https://github.com/hardkernel/linux/commit/594d995163d18449a48cd4e06b989c6de1493658
++// and: https://nixdev.com/?p=397
++		opp-1632000000 {
++			opp-hz = /bits/ 64 <1632000000>;
++			opp-microvolt = <1140000>;
++			status = "disabled";
++		};
+ 	};
+ 
+ 	gpu_opp_table: gpu-opp-table {
