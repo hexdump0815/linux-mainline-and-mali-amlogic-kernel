@@ -18,7 +18,7 @@ patch -p1 < /compile/doc/stable-am/misc.m8x/mxiii-usb-phy-fix.patch
 patch -p1 < /compile/doc/stable-am/misc.m8x/add-extra-pwms-to-meson8.patch
 # add more dtbs - from xdarklight tree and https://freenode.irclog.whitequark.org/linux-amlogic/2020-05-01#26937719
 patch -p1 < /compile/doc/stable-am/misc.m8x/add-extra-dtbs-to-dts-makefile.patch
-cp /compile/doc/stable-am/misc.m8x/dtb/*.dts* arch/arm/boot/dts
+cp -i /compile/doc/stable-am/misc.m8x/dtb/*.dts* arch/arm/boot/dts
 # minimal s805 overclocking
 #patch -p1 < /compile/doc/stable-am/misc.m8x/minimal-s805-overclocking.patch
 
