@@ -11,8 +11,8 @@ KERNEL=="mali0", MODE="0660", GROUP="video"
 
 # mali kernel module - utgard
 git clone https://github.com/superna9999/meson_gx_mali_450.git
-mv meson_gx_mali_450 amlogic-meson_gx_mali_450
-cd amlogic-meson_gx_mali_450
+mv meson_gx_mali_450 amlogic-meson_gx_mali_450-am
+cd amlogic-meson_gx_mali_450-am
 git checkout DX910-SW-99002-r9p0-01rel0_meson_gx
 # v5.4 compile patch needed
 #patch -p1 < /compile/doc/stable/misc.av8/fix-meson-gx-mali450-compile-v5.4.patch

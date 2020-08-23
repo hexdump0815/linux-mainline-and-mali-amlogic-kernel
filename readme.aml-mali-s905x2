@@ -11,8 +11,8 @@ KERNEL=="mali0", MODE="0660", GROUP="video"
 
 # mali kernel module - bifrost
 git clone https://github.com/superna9999/meson_g12a_mali_bifrost.git
-mv meson_g12a_mali_bifrost amlogic-meson_g12a_mali_bifrost
-cd /compile/source/amlogic-meson_g12a_mali_bifrost
+mv meson_g12a_mali_bifrost amlogic-meson_g12a_mali_bifrost-am
+cd /compile/source/amlogic-meson_g12a_mali_bifrost-am
 git checkout BX301A01B-SW-99002-r12p0-01rel0_meson-g12a
 #patch -p1 < /compile/doc/stable/misc.av8/fix-meson_g12a_mali_bifrost-compile-v5.4.patch
 patch -p1 < /compile/doc/stable/misc.av8/fix-meson_g12a_mali_bifrost-compile-v5.6.patch
