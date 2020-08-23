@@ -14,6 +14,8 @@ patch -p1 < /compile/doc/stable/misc.av8/reduce-cma-mem-for-amlogic.patch
 patch -p1 < /compile/doc/stable-am/misc.aml/lower-emmc-frequency-for-s905w.patch
 # add some extra but disabled opp entries for g12a, g12b and sm1
 patch -p1 < /compile/doc/stable-am/misc.aml/additional-disabled-opp-entires-v5.8.patch
+# reduce cma mem for amlogic
+patch -p1 < /compile/doc/stable-am/misc.aml/reduce-cma-mem-for-amlogic.patch
 # allow higher cpu temps
 patch -p1 < /compile/doc/stable-am/misc.aml/gxl-higher-temps.patch
 # add new dtbs to Makefile
