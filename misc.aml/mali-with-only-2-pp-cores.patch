@@ -1,0 +1,32 @@
+see: https://freenode.irclog.whitequark.org/linux-amlogic/2020-10-12#28121873
+
+--- ./driver/src/devicedrv/mali/platform/meson/meson.c.org	2020-10-13 19:20:57.083506590 +0200
++++ ./driver/src/devicedrv/mali/platform/meson/meson.c	2020-10-13 19:22:00.457742945 +0200
+@@ -72,7 +72,7 @@
+ 
+ #include <linux/mali/mali_utgard.h>
+ 
+-#define MESON_MALI_MAX_PP	3
++#define MESON_MALI_MAX_PP	2
+ 
+ struct clk *clk_core;
+ 
+@@ -211,18 +211,6 @@
+ 		goto err_put_clk;
+ 	}
+ 
+-	irq_pp[2] = of_irq_get_byname(np, "pp2");
+-	if (irq_pp[2] < 0) {
+-		pr_err("Couldn't get 'pp2' interrupt\n");
+-		goto err_put_clk;
+-	}
+-
+-	irq_ppmmu[2] = of_irq_get_byname(np, "ppmmu2");
+-	if (irq_ppmmu[2] < 0) {
+-		pr_err("Couldn't get 'ppmmu2' interrupt\n");
+-		goto err_put_clk;
+-	}
+-
+ 	mali_res = mali450_create_mp3_resources(res.start,
+ 						irq_gp, irq_gpmmu,
+ 						irq_pp_bcast, irq_pmu,
