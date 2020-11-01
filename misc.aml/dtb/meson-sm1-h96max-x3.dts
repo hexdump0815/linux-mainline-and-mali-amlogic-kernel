@@ -19,6 +19,10 @@
                 // reg = <0>;
                 // max-speed = <1000>;
                 max-speed = <100>;
+                eee-broken-1000t;
+
+                reset-assert-us = <10000>;
+                reset-deassert-us = <30000>;
 
                 interrupt-parent = <&gpio_intc>;
                 /* MAC_INTR on GPIOZ_14 */

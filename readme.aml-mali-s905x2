@@ -19,7 +19,7 @@ patch -p1 < /compile/doc/stable/misc.av8/fix-meson_g12a_mali_bifrost-compile-v5.
 patch -p1 < /compile/doc/stable-am/misc.aml/meson_g12a_mali-magic-string-v5.6.patch
 patch -p0 < /compile/doc/stable-am/misc.aml/meson_g12a_mali-fix-compile-v5.9.patch
 make KDIR=/compile/source/linux-stable-am ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- CONFIG_NAME=config.meson-g12a
-export kver=5.6.2-stb-aml+
+export kver=5.9.3-stb-aml+
 mkdir /lib/modules/${kver}/extra
 cp driver/product/kernel/drivers/gpu/arm/midgard/mali_kbase.ko /lib/modules/${kver}/extra
 tar czf /compile/result/stable-am/${kver}-mali-s905x2.tar.gz /lib/modules/${kver}/extra/mali_kbase.ko
