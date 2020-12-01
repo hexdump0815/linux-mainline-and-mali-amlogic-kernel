@@ -50,8 +50,9 @@
 		reg = <0>;
 //		max-speed = <1000>;
 
-		max-speed = <100>;
+//		max-speed = <100>;
 		eee-broken-1000t;
+		eee-broken-100tx;
 
 		reset-assert-us = <10000>;
 		reset-deassert-us = <30000>;
@@ -67,13 +68,13 @@
 	pinctrl-0 = <&eth_pins>, <&eth_rgmii_pins>;
 	pinctrl-names = "default";
 	status = "okay";
-	phy-mode = "rgmii";
+//	phy-mode = "rgmii";
 
 //	phy-mode = "rgmii-id";
-//	phy-mode = "rgmii-txid";
+	phy-mode = "rgmii-txid";
 	phy-handle = <&external_phy>;
 //	amlogic,tx-delay-ns = <2>;
-//	amlogic,rgmii-rx-delay-ps = <800>;
+	amlogic,rgmii-rx-delay-ps = <800>;
 };
 
 &cpu_opp_table {
