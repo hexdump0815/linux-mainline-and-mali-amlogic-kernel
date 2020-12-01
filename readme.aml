@@ -5,8 +5,8 @@ cd /compile/source/linux-stable-am
 # patches:
 # set mac addr on kernel cmdline - otherwise a random one is generated
 patch -p1 < /compile/doc/stable/misc.av8/gen-stmmac-mac-addr-on-kernel-cmdline-v5.3.patch
-# add eth reset
-patch -p1 < /compile/doc/stable-am/misc.aml/add-eth-reset.patch
+# add eth reset - seems no longer required with v5.9.11
+#patch -p1 < /compile/doc/stable-am/misc.aml/add-eth-reset.patch
 # add picoseconds delay for eth to work properly on some g12a and sm1 boxes
 patch -p1 < /compile/doc/stable-am/misc.aml/g12a-sm1-eth-picoseconds-delay-fix.patch
 # fix black background when using the mali blob hack
