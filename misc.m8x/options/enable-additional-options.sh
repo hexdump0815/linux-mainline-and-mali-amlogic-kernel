@@ -7,6 +7,7 @@ cd /compile/source/linux-stable-am
 ./scripts/config -d CONFIG_BLK_DEV_RAM
 ./scripts/config -d CONFIG_BLK_DEV_RAM_COUNT
 ./scripts/config -d CONFIG_BLK_DEV_RAM_SIZE
+./scripts/config --set-val CONFIG_MAGIC_SYSRQ_DEFAULT_ENABLE 0
 
 for i in `cat /compile/doc/stable-am/misc.m8x/options/additional-options-yes.txt`; do
   echo $i
