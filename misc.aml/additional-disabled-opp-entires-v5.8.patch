@@ -1,25 +1,39 @@
 diff --git a/arch/arm64/boot/dts/amlogic/meson-g12a.dtsi b/arch/arm64/boot/dts/amlogic/meson-g12a.dtsi
-index fb0ab27d1f64..58d7fea2eda1 100644
+index fb0ab27d1f64..d1a0d2604928 100644
 --- a/arch/arm64/boot/dts/amlogic/meson-g12a.dtsi
 +++ b/arch/arm64/boot/dts/amlogic/meson-g12a.dtsi
-@@ -111,7 +111,17 @@
+@@ -111,6 +111,31 @@
  			opp-hz = /bits/ 64 <1800000000>;
  			opp-microvolt = <981000>;
  		};
 +
-+// extra opp from g12b-s922x dtsi
-+		opp-1896000000 {
-+			opp-hz = /bits/ 64 <1896000000>;
-+			opp-microvolt = <981000>;
-+// alternative voltage from g12b-a311d dtsi
-+//			opp-microvolt = <1001000>;
++// extra opp entries inspired by values from g12b-s922x and g12b-a311d dtsi
++		opp-1908000000 {
++			opp-hz = /bits/ 64 <1908000000>;
++			opp-microvolt = <1001000>;
++			status = "disabled";
++		};
++
++		opp-2016000000 {
++			opp-hz = /bits/ 64 <2016000000>;
++			opp-microvolt = <1011000>;
++			status = "disabled";
++		};
++
++		opp-2108000000 {
++			opp-hz = /bits/ 64 <2108000000>;
++			opp-microvolt = <1022000>;
++			status = "disabled";
++		};
++
++		opp-2208000000 {
++			opp-hz = /bits/ 64 <2208000000>;
++			opp-microvolt = <1022000>;
 +			status = "disabled";
 +		};
  	};
-+
  };
  
- &cpu_thermal {
 diff --git a/arch/arm64/boot/dts/amlogic/meson-g12b-s922x.dtsi b/arch/arm64/boot/dts/amlogic/meson-g12b-s922x.dtsi
 index 1e5d0ee5d541..4aa2f0a1f712 100644
 --- a/arch/arm64/boot/dts/amlogic/meson-g12b-s922x.dtsi
