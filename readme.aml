@@ -9,6 +9,8 @@ patch -p1 < /compile/doc/stable/misc.av8/gen-stmmac-mac-addr-on-kernel-cmdline-v
 #patch -p1 < /compile/doc/stable-am/misc.aml/add-eth-reset.patch
 # add picoseconds delay for eth to work properly on some g12a and sm1 boxes
 patch -p1 < /compile/doc/stable-am/misc.aml/g12a-sm1-eth-picoseconds-delay-fix.patch
+# some dwmac-meson8b clock fixes
+patch -p1 < /compile/doc/stable-am/misc.aml/dwmac-meson8b-clk-fix.patch
 # fix black background when using the mali blob hack
 # seems to be no longer required with v5.6
 #patch -p1 < /compile/doc/stable/misc.av8/s90-amlogic-s90x-mali-hack.patch
