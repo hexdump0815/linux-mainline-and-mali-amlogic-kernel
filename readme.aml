@@ -22,6 +22,8 @@ patch -p1 < /compile/doc/stable-am/misc.aml/lower-emmc-frequency-for-s905w.patch
 patch -p1 < /compile/doc/stable-am/misc.aml/additional-disabled-opp-entires-v5.8.patch
 # allow higher cpu temps
 patch -p1 < /compile/doc/stable-am/misc.aml/gxl-higher-temps.patch
+# enable cpufreq on odroid c2
+patch -p1 < /compile/doc/stable/misc.av8/enable-cpufreq-on-odroid-c2.patch
 # add new dtbs to Makefile
 patch -p1 < /compile/doc/stable-am/misc.aml/add-new-dtbs-to-Makefile-v5.9.patch
 # copy additional dtb files - from: https://github.com/150balbes/Amlogic_s905-kernel/tree/5.6/arch/arm64/boot/dts/amlogic
