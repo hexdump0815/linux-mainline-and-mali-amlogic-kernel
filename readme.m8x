@@ -13,7 +13,8 @@ patch -p1 < /compile/doc/stable-am/misc.m8x/patches/gen-stmmac-mac-addr-on-kerne
 #patch -p1 < /compile/doc/stable-am/misc.m8x/patches/eth-clk-dev.patch
 patch -p1 < /compile/doc/stable-am/misc.m8x/patches/eth-clk-dev-v5.9.patch
 # fix for the usb phy on mxiii - https://freenode.irclog.whitequark.org/linux-amlogic/2020-05-02#26942810
-patch -p1 < /compile/doc/stable-am/misc.m8x/patches/mxiii-usb-phy-fix.patch
+# IMPORTANT: needs to be checked as it did not apply cleanly
+#patch -p1 < /compile/doc/stable-am/misc.m8x/patches/mxiii-usb-phy-fix.patch
 # add pwms for m8s-dvfs - https://freenode.irclog.whitequark.org/linux-amlogic/2020-05-01#26937776
 patch -p1 < /compile/doc/stable-am/misc.m8x/patches/add-extra-pwms-to-meson8.patch
 # add more dtbs - from xdarklight tree and https://freenode.irclog.whitequark.org/linux-amlogic/2020-05-01#26937719
