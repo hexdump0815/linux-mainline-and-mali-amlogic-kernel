@@ -1,31 +1,30 @@
-#
 # directories:
 # - /compile/doc/stable-am - the files in this dir
 # - /compile/source/linux-stable-am - the kernel sources checked out from gitrepo
 # - /compile/result/stable-am - the resulting kernel, modules etc. tar.gz files
-#
+
 # patches:
 # set mac addr on kernel cmdline - otherwise a random one is generated
-patch -p1 < /compile/doc/stable-am/misc.m8x/gen-stmmac-mac-addr-on-kernel-cmdline-v5.3.patch
+patch -p1 < /compile/doc/stable-am/misc.m8x/patches/gen-stmmac-mac-addr-on-kernel-cmdline-v5.3.patch
 # pll locking fix for meson8 - https://freenode.irclog.whitequark.org/linux-amlogic/2020-05-01#26937336
 # replaced by eth-clk-dev.patch
-#patch -p1 < /compile/doc/stable-am/misc.m8x/mxiii-pll-lock-fix.patch
+#patch -p1 < /compile/doc/stable-am/misc.m8x/patches/mxiii-pll-lock-fix.patch
 # update eth clk code to dev version
-#patch -p1 < /compile/doc/stable-am/misc.m8x/eth-clk-dev.patch
-patch -p1 < /compile/doc/stable-am/misc.m8x/eth-clk-dev-v5.9.patch
+#patch -p1 < /compile/doc/stable-am/misc.m8x/patches/eth-clk-dev.patch
+patch -p1 < /compile/doc/stable-am/misc.m8x/patches/eth-clk-dev-v5.9.patch
 # fix for the usb phy on mxiii - https://freenode.irclog.whitequark.org/linux-amlogic/2020-05-02#26942810
-patch -p1 < /compile/doc/stable-am/misc.m8x/mxiii-usb-phy-fix.patch
+patch -p1 < /compile/doc/stable-am/misc.m8x/patches/mxiii-usb-phy-fix.patch
 # add pwms for m8s-dvfs - https://freenode.irclog.whitequark.org/linux-amlogic/2020-05-01#26937776
-patch -p1 < /compile/doc/stable-am/misc.m8x/add-extra-pwms-to-meson8.patch
+patch -p1 < /compile/doc/stable-am/misc.m8x/patches/add-extra-pwms-to-meson8.patch
 # add more dtbs - from xdarklight tree and https://freenode.irclog.whitequark.org/linux-amlogic/2020-05-01#26937719
-patch -p1 < /compile/doc/stable-am/misc.m8x/add-extra-dtbs-to-dts-makefile.patch
+patch -p1 < /compile/doc/stable-am/misc.m8x/patches/add-extra-dtbs-to-dts-makefile.patch
 cp -i /compile/doc/stable-am/misc.m8x/dtb/*.dts* arch/arm/boot/dts
 # minimal s805 overclocking
-#patch -p1 < /compile/doc/stable-am/misc.m8x/minimal-s805-overclocking.patch
-
+#patch -p1 < /compile/doc/stable-am/misc.m8x/patches/minimal-s805-overclocking.patch
 
 cp /compile/doc/stable-am/config.m8x /compile/source/linux-stable-am/.config
 cd /compile/source/linux-stable-am
+
 export ARCH=arm
 # make multi_v7_defconfig + fix options - see misc.m8x/options
 make oldconfig

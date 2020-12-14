@@ -1,33 +1,30 @@
-# name: -stb-aml + no auto
+# directories:
+# - /compile/doc/stable-am - the files in this dir
+# - /compile/source/linux-stable-am - the kernel sources checked out from gitrepo
+# - /compile/result/stable-am - the resulting kernel, modules etc. tar.gz files
+
+# patches:
+# add picoseconds delay for eth to work properly on some g12a and sm1 boxes
+patch -p1 < /compile/doc/stable-am/misc.aml/patches/g12a-sm1-eth-picoseconds-delay-fix.patch
+# some dwmac-meson8b clock fixes
+patch -p1 < /compile/doc/stable-am/misc.aml/patches/dwmac-meson8b-clk-fix.patch
+# reduce cma mem for amlogic
+patch -p1 < /compile/doc/stable-am/misc.aml/patches/reduce-cma-mem-for-amlogic.patch
+# many s905w tv boxes have very low spec emmc chips so lower the freq for them
+patch -p1 < /compile/doc/stable-am/misc.aml/patches/lower-emmc-frequency-for-s905w.patch
+# add some extra but disabled opp entries for g12a, g12b and sm1
+patch -p1 < /compile/doc/stable-am/misc.aml/patches/additional-disabled-opp-entires-v5.8.patch
+# allow higher cpu temps
+patch -p1 < /compile/doc/stable-am/misc.aml/patches/gxl-higher-temps.patch
+# enable cpufreq on odroid c2
+patch -p1 < /compile/doc/stable-am/misc.aml/patches/enable-cpufreq-on-odroid-c2.patch
+# add new dtbs to Makefile
+patch -p1 < /compile/doc/stable-am/misc.aml/patches/add-new-dtbs-to-Makefile-v5.9.patch
+# copy additional dtb files - maintained: sm1-h96max-x3, g12a-t95q and gxl-s905x-mi-box
+cp -i /compile/doc/stable-am/misc.aml/dtb/*.dts arch/arm64/boot/dts/amlogic
 
 cp /compile/doc/stable-am/config.aml /compile/source/linux-stable-am/.config
 cd /compile/source/linux-stable-am
-# patches:
-# set mac addr on kernel cmdline - otherwise a random one is generated
-patch -p1 < /compile/doc/stable/misc.av8/gen-stmmac-mac-addr-on-kernel-cmdline-v5.3.patch
-# add eth reset - seems no longer required with v5.9.11
-#patch -p1 < /compile/doc/stable-am/misc.aml/add-eth-reset.patch
-# add picoseconds delay for eth to work properly on some g12a and sm1 boxes
-patch -p1 < /compile/doc/stable-am/misc.aml/g12a-sm1-eth-picoseconds-delay-fix.patch
-# some dwmac-meson8b clock fixes
-patch -p1 < /compile/doc/stable-am/misc.aml/dwmac-meson8b-clk-fix.patch
-# fix black background when using the mali blob hack
-# seems to be no longer required with v5.6
-#patch -p1 < /compile/doc/stable/misc.av8/s90-amlogic-s90x-mali-hack.patch
-# reduce cma mem for amlogic
-patch -p1 < /compile/doc/stable/misc.av8/reduce-cma-mem-for-amlogic.patch
-# many s905w tv boxes have very low spec emmc chips so lower the freq for them
-patch -p1 < /compile/doc/stable-am/misc.aml/lower-emmc-frequency-for-s905w.patch
-# add some extra but disabled opp entries for g12a, g12b and sm1
-patch -p1 < /compile/doc/stable-am/misc.aml/additional-disabled-opp-entires-v5.8.patch
-# allow higher cpu temps
-patch -p1 < /compile/doc/stable-am/misc.aml/gxl-higher-temps.patch
-# enable cpufreq on odroid c2
-patch -p1 < /compile/doc/stable/misc.av8/enable-cpufreq-on-odroid-c2.patch
-# add new dtbs to Makefile
-patch -p1 < /compile/doc/stable-am/misc.aml/add-new-dtbs-to-Makefile-v5.9.patch
-# copy additional dtb files - from: https://github.com/150balbes/Amlogic_s905-kernel/tree/5.6/arch/arm64/boot/dts/amlogic
-cp -i /compile/doc/stable-am/misc.aml/dtb/*.dts arch/arm64/boot/dts/amlogic
 
 # git pull
 export ARCH=arm64
