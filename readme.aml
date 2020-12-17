@@ -2,6 +2,7 @@
 # - /compile/doc/stable-am - the files in this dir
 # - /compile/source/linux-stable-am - the kernel sources checked out from gitrepo
 # - /compile/result/stable-am - the resulting kernel, modules etc. tar.gz files
+# name: stb-aml
 
 # patches:
 # add picoseconds delay for eth to work properly on some g12a and sm1 boxes
