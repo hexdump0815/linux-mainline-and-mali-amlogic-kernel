@@ -28,7 +28,9 @@ cp /compile/doc/stable-am/config.m8x /compile/source/linux-stable-am/.config
 cd /compile/source/linux-stable-am
 
 export ARCH=arm
-# make multi_v7_defconfig + fix options - see misc.m8x/options
+# make multi_v7_defconfig
+# /compile/doc/stable-am/misc.aml/options/enable-docker-options.sh
+# /compile/doc/stable-am/misc.aml/options/enable-additional-options.sh
 make oldconfig
 make -j 4 LOADADDR=0x00208000 zImage dtbs modules
 cd tools/perf
@@ -47,15 +49,16 @@ cp -v tools/power/cpupower/cpupower /lib/modules/${kver}/tools
 cp -v tools/power/cpupower/libcpupower.so.0.0.1 /lib/modules/${kver}/tools/libcpupower.so.0
 # make headers_install INSTALL_HDR_PATH=/usr
 cp -v .config /boot/config-${kver}
-# for all except amlogic 32bit socs
+# not really useable for legacy u-boot
 cp -v arch/arm/boot/zImage /boot/zImage-${kver}
-# for amlogic 32bit socs (legacy u-boot)
+# amlogic 32bit socs so far only have legacy u-boot which needs this
 mkimage -A arm -O linux -T kernel -C none -a 0x00208000 -e 0x00208000 -n linux-${kver} -d arch/arm/boot/zImage /boot/uImage-${kver}
 mkdir -p /boot/dtb-${kver}
 cp -v arch/arm/boot/dts/meson8*.dtb /boot/dtb-${kver}
 cp -v System.map /boot/System.map-${kver}
 cd /boot
 update-initramfs -c -k ${kver}
+# amlogic 32bit socs so far only have legacy u-boot which needs this
 mkimage -A arm -O linux -T ramdisk -a 0x0 -e 0x0 -n initrd.img-${kver} -d initrd.img-${kver} uInitrd-${kver}
 tar cvzf /compile/source/linux-stable-am/${kver}.tar.gz /boot/*-${kver} /lib/modules/${kver}
 cp -v /compile/doc/stable-am/config.m8x /compile/doc/stable-am/config.m8x.old

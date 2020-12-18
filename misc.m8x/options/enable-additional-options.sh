@@ -20,6 +20,9 @@ cd /compile/source/linux-stable-am
 ./scripts/config -d CONFIG_REISERFS_FS
 ./scripts/config -d CONFIG_OCFS2_FS
 
+./scripts/config -d CONFIG_LOCALVERSION_AUTO
+./scripts/config --set-str CONFIG_LOCALVERSION "-stb-m8x"
+
 for i in `cat /compile/doc/stable-am/misc.m8x/options/additional-options-*-yes.txt`; do
   echo $i
   ./scripts/config -e $i
