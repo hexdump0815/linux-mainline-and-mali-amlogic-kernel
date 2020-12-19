@@ -29,8 +29,8 @@ cd /compile/source/linux-stable-am
 
 export ARCH=arm
 # make multi_v7_defconfig
-# /compile/doc/stable-am/misc.aml/options/enable-docker-options.sh
-# /compile/doc/stable-am/misc.aml/options/enable-additional-options.sh
+# /compile/doc/stable-am/misc.m8x/options/enable-docker-options.sh
+# /compile/doc/stable-am/misc.m8x/options/enable-additional-options.sh
 make oldconfig
 make -j 4 LOADADDR=0x00208000 zImage dtbs modules
 cd tools/perf
